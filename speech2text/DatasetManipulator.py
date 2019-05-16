@@ -1,11 +1,11 @@
-import os, re
-import shutil
+import os
+import re
 import pydub as pdb
 import matplotlib.pyplot as plt
 import numpy as np
 import wave
-import sys
 import multiprocessing as mp
+import string
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -15,6 +15,8 @@ except ImportError:
 class DatasetManipulator:
 
     CUT_DATASET_PATH = "datasets/cpm_cut"
+    CUT_CSV_NAME = "data.csv"
+    SAMPLING_RATE = 16000
 
     audio_files = []
     annotation_files = []
@@ -65,6 +67,7 @@ class DatasetManipulator:
                 time_str = elem.get('time')
                 time_ms = int(float(time_str)*1000)
                 audio_segment = pair[0][last_time:time_ms]
+                audio_segment = audio_segment.set_frame_rate(self.SAMPLING_RATE)
                 audio_segment.export(file_id_path + '.wav', format='wav')
                 open(file_id_path + '.txt', 'a+').close()
                 counter += 1
@@ -78,14 +81,34 @@ class DatasetManipulator:
                             file.write(pronounce_word)
                         else:
                             file.write(' ' + pronounce_word)
-                        pronounce_word = ''
                     else:
+                        sent = ' '.join(elem_text.strip().replace(',', ' ').split())\
+                                  .translate(str.maketrans('', '', string.punctuation))
                         if first_file_entry:
-                            file.write(' '.join(elem_text.strip().replace(',', ' ').split()))
+                            file.write(sent)
                         else:
-                            file.write(' ' + ' '.join(elem_text.strip().replace(',', ' ').split()))
+                            file.write(' ' + sent)
                     file.close()
                     first_file_entry = False
+
+    def csv_from_cut_folder(self):
+        if not os.path.exists(self.CUT_DATASET_PATH):
+            print('Cut folder doesn\'t exist.')
+            return
+
+        csv_file = open(os.path.join(self.CUT_DATASET_PATH, self.CUT_CSV_NAME), 'w+')
+        csv_file.write('file,label\n')
+
+        for file in os.listdir(self.CUT_DATASET_PATH):
+            if '.wav' in file:
+                file_name = file.split('/')[-1]
+                file_name_wo_ext, extension = os.path.splitext(file)
+                with open(os.path.join(self.CUT_DATASET_PATH, file_name_wo_ext + '.txt'), 'r') as f:
+                    label_str = f.read()
+                csv_file.write('"{}","{}"\n'.format(file_name, label_str))
+
+        csv_file.close()
+
 
     @staticmethod
     def plot_wav_file(filename):
@@ -95,8 +118,8 @@ class DatasetManipulator:
         fr = spf.getframerate()
 
         if spf.getnchannels() == 2:
-            print('Just mono files')
-            sys.exit(0)
+            print('File has more then one channel, returning...')
+            return
 
         y_time = np.linspace(0, len(signal) / fr, num=len(signal))
         plt.figure(1)
