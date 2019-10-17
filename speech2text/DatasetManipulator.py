@@ -8,6 +8,7 @@ import wave
 import multiprocessing as mp
 import string
 import random
+
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -16,14 +17,19 @@ except ImportError:
 
 class DatasetManipulator:
 
-    CUT_DATASET_PATH = "../datasets/cpm_cut"
+    OS_SEP = os.path.sep
+    CUT_DATASET_FOLDER_NAME = "cpm_cut"
     CUT_CSV_NAME = "data.csv"
     SAMPLING_RATE = 16000
 
     audio_files = []
     annotation_files = []
 
+    cut_dataset_path = ''
+
     def __init__(self, dataset_folder):
+        self.cut_dataset_path = os.path.join(self.OS_SEP.join(dataset_folder.split(self.OS_SEP)[:-1]),
+                                             self.CUT_DATASET_FOLDER_NAME)
         for r, d, f in os.walk(dataset_folder):
             for file in f:
                 if '.wav' in file:
@@ -40,24 +46,24 @@ class DatasetManipulator:
         print("Found:")
         for i, f in enumerate(self.audio_files):
             if i == len(self.audio_files) - 1:
-                print(self.audio_files[i].split('/')[-1].split('.')[0])
+                print(self.audio_files[i].split(self.OS_SEP)[-1].split('.')[0])
             else:
-                print(self.audio_files[i].split('/')[-1].split('.')[0] + ', ', end='')
+                print(self.audio_files[i].split(self.OS_SEP)[-1].split('.')[0] + ', ', end='')
 
     def cut_audio_pair(self, pair_id):
-        pair = self.get_pair_by_id(pair_id)
 
-        if os.path.exists(self.CUT_DATASET_PATH):
+        pair = self.get_pair_by_id(pair_id)
+        if os.path.exists(self.cut_dataset_path):
             pattern = re.escape(str(pair_id)) + r'_.*'
-            for f in os.listdir(self.CUT_DATASET_PATH):
+            for f in os.listdir(self.cut_dataset_path):
                 if re.search(pattern, f):
-                    os.remove(os.path.join(self.CUT_DATASET_PATH, f))
+                    os.remove(os.path.join(self.cut_dataset_path, f))
         else:
-            os.makedirs(self.CUT_DATASET_PATH)
+            os.makedirs(self.cut_dataset_path)
 
         counter = 0
         last_time = 0
-        file_id_path = os.path.join(self.CUT_DATASET_PATH, str(pair_id) + '_' + str(counter))
+        file_id_path = os.path.join(self.cut_dataset_path, str(pair_id) + '_' + str(counter))
         first_file_entry = True
         pronounce_word = ''
 
@@ -73,7 +79,7 @@ class DatasetManipulator:
                 audio_segment.export(file_id_path + '.wav', format='wav')
                 open(file_id_path + '.txt', 'a+').close()
                 counter += 1
-                file_id_path = os.path.join(self.CUT_DATASET_PATH, str(pair_id) + '_' + str(counter))
+                file_id_path = os.path.join(self.cut_dataset_path, str(pair_id) + '_' + str(counter))
                 last_time = time_ms
             for elem_text in [elem.text, elem.tail]:
                 if elem_text and elem_text.strip():
@@ -96,18 +102,18 @@ class DatasetManipulator:
         print('Finished cutting file id {}.'.format(pair_id))
 
     def csv_from_cut_folder(self):
-        if not os.path.exists(self.CUT_DATASET_PATH):
+        if not os.path.exists(self.cut_dataset_path):
             print('Cut folder doesn\'t exist.')
             return
 
-        csv_file = open(os.path.join(self.CUT_DATASET_PATH, self.CUT_CSV_NAME), 'w+')
+        csv_file = open(os.path.join(self.cut_dataset_path, self.CUT_CSV_NAME), 'w+')
         csv_file.write('file,text\n')
 
-        for file in os.listdir(self.CUT_DATASET_PATH):
+        for file in os.listdir(self.cut_dataset_path):
             if '.wav' in file:
-                file_name = file.split('/')[-1]
+                file_name = file.split(self.OS_SEP)[-1]
                 file_name_wo_ext, extension = os.path.splitext(file)
-                with open(os.path.join(self.CUT_DATASET_PATH, file_name_wo_ext + '.txt'), 'r') as f:
+                with open(os.path.join(self.cut_dataset_path, file_name_wo_ext + '.txt'), 'r') as f:
                     label_str = f.read()
                 csv_file.write('"{}","{}"\n'.format(file_name, label_str))
 
@@ -193,6 +199,7 @@ class DatasetManipulator:
     def get_pair_by_id(self, pair_id):
         if pair_id < 0 or pair_id > len(self.audio_files) - 1:
             raise ValueError("Out of bounds - must be integer between 0 and " + str(self.num_loaded()))
+
         return pdb.AudioSegment.from_wav(self.audio_files[pair_id]), ET.parse(self.annotation_files[pair_id]).getroot()
 
     def num_loaded(self):
