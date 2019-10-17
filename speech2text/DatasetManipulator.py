@@ -1,4 +1,5 @@
 import os
+import glob
 import re
 import pydub as pdb
 import matplotlib.pyplot as plt
@@ -6,6 +7,7 @@ import numpy as np
 import wave
 import multiprocessing as mp
 import string
+import random
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -14,7 +16,7 @@ except ImportError:
 
 class DatasetManipulator:
 
-    CUT_DATASET_PATH = "datasets/cpm_cut"
+    CUT_DATASET_PATH = "../datasets/cpm_cut"
     CUT_CSV_NAME = "data.csv"
     SAMPLING_RATE = 16000
 
@@ -81,6 +83,7 @@ class DatasetManipulator:
                             file.write(pronounce_word)
                         else:
                             file.write(' ' + pronounce_word)
+                        pronounce_word = ''
                     else:
                         sent = ' '.join(elem_text.strip().replace(',', ' ').split())\
                                   .translate(str.maketrans('', '', string.punctuation))
@@ -90,6 +93,7 @@ class DatasetManipulator:
                             file.write(' ' + sent)
                     file.close()
                     first_file_entry = False
+        print('Finished cutting file id {}.'.format(pair_id))
 
     def csv_from_cut_folder(self):
         if not os.path.exists(self.CUT_DATASET_PATH):
@@ -97,7 +101,7 @@ class DatasetManipulator:
             return
 
         csv_file = open(os.path.join(self.CUT_DATASET_PATH, self.CUT_CSV_NAME), 'w+')
-        csv_file.write('file,label\n')
+        csv_file.write('file,text\n')
 
         for file in os.listdir(self.CUT_DATASET_PATH):
             if '.wav' in file:
@@ -109,6 +113,62 @@ class DatasetManipulator:
 
         csv_file.close()
 
+    @staticmethod
+    def csv_generate_deepspeech(folder, reduce_data=1.0):
+        if not os.path.exists(folder):
+            print('Folder doesn\'t exist.')
+            return
+
+        if 0 >= reduce_data > 1:
+            print("reduce_data parameter should be a double "
+                  "between 0 (exclusive) and 1 (inclusive - default). Returning.")
+            return
+
+        csv_train = open(os.path.join(folder, "train.csv"), 'w+')
+        csv_test = open(os.path.join(folder, "test.csv"), 'w+')
+        csv_dev = open(os.path.join(folder, "dev.csv"), 'w+')
+
+        for file in [csv_train, csv_test, csv_dev]:
+            file.write('wav_filename,wav_filesize,transcript\n')
+
+        wav_list = glob.glob(os.path.join(folder, "*.wav"))
+
+        alphanum_pattern = re.compile(r'([^\s\w]|_+)', re.UNICODE)
+
+        wav_indices = random.sample(range(len(wav_list)), int(np.ceil(len(wav_list)*reduce_data)))
+
+        train_cnt = test_cnt = dev_cnt = 0
+
+        for i in wav_indices:
+            name, _ = os.path.splitext(wav_list[i])
+            with open(name + '.txt') as f:
+                transcript = f.read().lower()
+            transcript = alphanum_pattern.sub('', str(transcript))
+
+            if transcript == "" or transcript == " ":
+                continue
+
+            filesize = os.path.getsize(wav_list[i])
+            abs_path = os.path.abspath(wav_list[i])
+
+            d = random.randint(0, 3)
+
+            if d <= 1:
+                csv_train.write('{},{},{}\n'.format(abs_path, filesize, transcript))
+                train_cnt += 1
+            elif d == 2:
+                csv_test.write('{},{},{}\n'.format(abs_path, filesize, transcript))
+                test_cnt += 1
+            else:
+                csv_dev.write('{},{},{}\n'.format(abs_path, filesize, transcript))
+                dev_cnt += 1
+
+        for file in [csv_train, csv_test, csv_dev]:
+            file.close()
+        sample_sum = train_cnt + test_cnt + dev_cnt
+        print("Excluded samples with empty transcript.")
+        print("{} samples out of {}\nDistribution:\ntrain: {}\ndev:  {}\ntest: {}"
+              .format(sample_sum, len(wav_list), train_cnt/sample_sum, dev_cnt/sample_sum, test_cnt/sample_sum))
 
     @staticmethod
     def plot_wav_file(filename):
