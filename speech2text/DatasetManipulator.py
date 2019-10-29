@@ -29,8 +29,9 @@ class DatasetManipulator:
     cut_dataset_path = ''
 
     def __init__(self, dataset_folder):
-        self.cut_dataset_path = os.path.join(self.OS_SEP.join(dataset_folder.split(self.OS_SEP)[:-1]),
-                                             self.CUT_DATASET_FOLDER_NAME)
+        self.cut_dataset_path = os.path.join(
+            self.OS_SEP.join(dataset_folder.rstrip(self.OS_SEP).split(self.OS_SEP)[:-1]),
+            self.CUT_DATASET_FOLDER_NAME)
         for r, d, f in os.walk(dataset_folder):
             for file in f:
                 if '.wav' in file:
