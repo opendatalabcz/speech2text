@@ -1,6 +1,7 @@
 import sys
+import os
 
-from speech2text.DatasetManipulator import DatasetManipulator as DM
+from speech2text.DatasetManipulator import DatasetManipulator as DaMa
 
 
 if len(sys.argv) < 2:
@@ -9,13 +10,8 @@ if len(sys.argv) < 2:
 
 dataset_folder = sys.argv[1]  # ../datasets/cpm_dataset
 
-am = DM(dataset_folder)
-
-# am.plot_wav_file('datasets/cpm_cut/0_1.wav')
-am.cut_audio_pair(0)
-# am.csv_from_cut_folder()
-#
-# dataset = pd.read_csv('datasets/cpm_cut/data.csv')
-# for _, row in dataset.sample(frac=1).iterrows():
-#     print('|', _, '|', '/', row, '/')
-# alphabet='aábcčdďeéěfghiíjklmnňoópqrřsštťuúůvwxyýzž'
+am = DaMa(dataset_folder)
+am.parallel_cut_all_pairs(n_jobs=12)
+am.csv_from_cut_folder()
+am.csv_generate_deepspeech(os.path.join(dataset_folder.rstrip(DaMa.OS_SEP).split(DaMa.OS_SEP)[:-1],
+                                        DaMa.CUT_DATASET_FOLDER_NAME))
