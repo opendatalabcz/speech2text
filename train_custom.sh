@@ -29,7 +29,7 @@ test_batch_size=48
 n_hidden=2048
 learning_rate=0.0001
 dropout_rate=0.2
-epochs=0
+epochs=75
 early_stop="true"
 lm_alpha=0.75
 lm_beta=1.85
@@ -65,7 +65,13 @@ test_CER=`grep "Test on" "${log_fn}" | cut -d':' -f3 | cut -d',' -f1 | tr -d ' '
 test_loss=`grep "Test on" "${log_fn}" | cut -d':' -f4 | cut -d',' -f1 | tr -d ' '`
 
 model_info_fn="${model_dir}${test_WER}_${test_CER}_${test_loss}"
-mv ../ds_outputs/"export"/output_graph.pb "${model_info_fn}.pb"
+
+python ./native_client_bin/convert_graphdef_memmapped_format --in_graph="../ds_outputs/export/output_graph.pb" \
+							     --out_graph="${model_info_fn}.pbmm"
+
+if [ -f "${model_info_fn}.pbmm" ]; then
+	rm "../ds_outputs/export/output_graph.pb"
+fi
 
 echo "Batch sizes (tr/de/te):${train_batch_size}/${dev_batch_size}/${test_batch_size}" >> "${model_info_fn}.txt"
 echo "N-hidden:${n_hidden}" >> "${model_info_fn}.txt"
