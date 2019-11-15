@@ -36,10 +36,10 @@ RUN apt-get clean
 # ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64
 
 # Copy the DeepSpeech repo and update it
-COPY ../DeepSpeech /opt/DeepSpeech
+COPY ./DeepSpeech /opt/DeepSpeech
 RUN cd /opt/DeepSpeech && git pull && git checkout $DS_CHECKOUT
-COPY ./train_custom.sh /opt/DeepSpeech/train_custom.sh
-COPY ./inference.sh /opt/inference.sh
+COPY ./speech2text/train_custom.sh /opt/DeepSpeech/train_custom.sh
+COPY ./speech2text/inference.sh /opt/inference.sh
 
 # Download and install KenLM toolkit
 RUN cd opt/ && \
