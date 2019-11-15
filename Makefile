@@ -3,12 +3,18 @@ C_NAME = "speech_test_cont"
 RAM_LIMIT = "24g"
 I_NAME = "speech_test_img"
 
+BLD_CTX = ".."
+
 build-nocache:
-	docker build --no-cache -t "$(I_NAME)" -f Dockerfile .
+	cp ./Dockerfile ../Dockerfile
+	docker build --no-cache -t "$(I_NAME)" -f ../Dockerfile "${BLD_CTX}"
+	rm ../Dockerfile
 build:
-	docker build -t "$(I_NAME)" -f Dockerfile .
+	cp ./Dockerfile ../Dockerfile
+	docker build -t "$(I_NAME)" -f ../Dockerfile "${BLD_CTX}"
+	rm ../Dockerfile
 run:
-	NV_GPU="$(GPU)" nvidia-docker run -it -p 8888:8888 --name "$(C_NAME)" --memory="$(RAM_LIMIT)" --rm -v /home/rwerner/SpeechProcessing/shared:/opt/shared "$(I_NAME)"
+	NV_GPU="$(GPU)" nvidia-docker run -it -p 8888:8888 -p 6006:6006 --name "$(C_NAME)" --memory="$(RAM_LIMIT)" --rm -v /home/rwerner/SpeechProcessing/shared:/opt/shared "$(I_NAME)"
 exec:
 	docker exec -it "$(C_NAME)" bash
 default_arguments:
