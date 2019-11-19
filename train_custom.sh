@@ -20,8 +20,8 @@ export_dir="../ds_outputs/export"
 checkpoint_dir="../ds_outputs/checkpoints"
 summary_dir="../ds_outputs/summary"
 log_dir="../ds_outputs/logs"
-lm_binary_path="${datasets_dir}/lm.binary"
-lm_trie_path="${datasets_dir}/trie"
+lm_binary_path="${shared_dir}/lm.binary"
+lm_trie_path="${shared_dir}/trie"
 ####################
 train_batch_size=24
 dev_batch_size=48
@@ -60,12 +60,18 @@ lm_beta=1.85
  --use_allow_growth \
  --automatic_mixed_precision > "${log_fn}" 2>&1
 
-test_WER= `grep "Test on" "${log_fn}" | cut -d':' -f2 | cut -d',' -f1` | tr -d ' '
-test_CER= `grep "Test on" "${log_fn}" | cut -d':' -f3 | cut -d',' -f1` | tr -d ' '
-test_loss=`grep "Test on" "${log_fn}" | cut -d':' -f4 | cut -d',' -f1` | tr -d ' '
+test_WER=`grep "Test on" "${log_fn}" | cut -d':' -f2 | cut -d',' -f1 | tr -d ' '`
+test_CER=`grep "Test on" "${log_fn}" | cut -d':' -f3 | cut -d',' -f1 | tr -d ' '`
+test_loss=`grep "Test on" "${log_fn}" | cut -d':' -f4 | cut -d',' -f1 | tr -d ' '`
 
 model_info_fn="${model_dir}${test_WER}_${test_CER}_${test_loss}"
-mv ../ds_outputs/"export"/output_graph.pb "${model_info_fn}.pb"
+
+python ./native_client_bin/convert_graphdef_memmapped_format --in_graph="../ds_outputs/export/output_graph.pb" \
+							     --out_graph="${model_info_fn}.pbmm"
+
+if [ -f "${model_info_fn}.pbmm" ]; then
+	rm "../ds_outputs/export/output_graph.pb"
+fi
 
 echo "Batch sizes (tr/de/te):${train_batch_size}/${dev_batch_size}/${test_batch_size}" >> "${model_info_fn}.txt"
 echo "N-hidden:${n_hidden}" >> "${model_info_fn}.txt"

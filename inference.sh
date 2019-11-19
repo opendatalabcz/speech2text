@@ -11,11 +11,12 @@ fi
 
 if [ "$1" == "-r" ]; then
 	if [[ "$2" =~ $num_re ]]; then
-		id_list=`tail -n +2 "${datasets_dir}/cpm_cut/test.csv" | sort -R | head | cut -d',' -f1 | cut -d'/' -f5 | cut -d'.' -f1`
+		id_list=`tail -n +2 "${datasets_dir}/cpm_cut/test.csv" | sort -R | head -n "$2" | cut -d',' -f1 | rev | cut -d'/' -f1 | rev | cut -d'.' -f1`
 		while read -r line
 		do
 			./inference.sh "$line"
 		done <<< "$id_list"
+		exit 0
 	fi
 	echo "After the -r specifier, specify also number of randomly generated inferences. I.e.: ./inference -r 5"
 	exit 2
@@ -33,7 +34,9 @@ cat "${datasets_dir}/cpm_cut/${1}.txt"
 echo ""
 echo -n "inf: "
 
-deepspeech --model "${shared_dir}/output_graph.pbmm" \
+best_wer_model=`ls "${shared_dir}/models" | grep pbmm | sort -V | head -n 1`
+
+deepspeech --model "${shared_dir}/models/${best_wer_model}" \
            --lm "${shared_dir}/lm.binary" \
            --trie "${shared_dir}/trie" \
            --audio "${datasets_dir}/cpm_cut/${audio_id}.wav" \
