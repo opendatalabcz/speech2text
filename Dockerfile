@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
             python3-pip \
 			sox \
 			libsox-fmt-mp3 \
-			locales \
 			dos2unix \
 			virtualenv \
             build-essential \
@@ -31,15 +30,12 @@ RUN apt-get update && apt-get install -y \
             software-properties-common
 RUN git lfs install
 RUN apt-get clean
- 
-# Custom CUDA Library paths
-# ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64
 
 # Copy the DeepSpeech repo and update it
 COPY ./DeepSpeech /opt/DeepSpeech
-RUN cd /opt/DeepSpeech && git pull && git checkout $DS_CHECKOUT
-COPY ./speech2text/train_custom.sh /opt/DeepSpeech/train_custom.sh
-COPY ./speech2text/inference.sh /opt/inference.sh
+RUN cd /opt/DeepSpeech && \
+    git pull && \
+    git checkout $DS_CHECKOUT
 
 # Download and install KenLM toolkit
 RUN cd opt/ && \
@@ -49,8 +45,13 @@ RUN cd opt/ && \
     cmake .. && \
     make -j2
 
-# Clone dataset preprocessing tools
-RUN cd /opt && git clone https://github.com/opendatalabcz/speech2text.git
+# Clone dataset preprocessing tools and scripts, give proper rights
+RUN cd /opt && \ 
+    git clone https://github.com/opendatalabcz/speech2text.git
+RUN cp /opt/speech2text/inference.sh /opt/ && \
+    chmod u+x /opt/inference.sh
+RUN cp /opt/speech2text/train_custom.sh /opt/DeepSpeech/ && \
+    chmod u+x /opt/DeepSpeech/train_custom.sh
 
 # Virtual environmnet
 ENV VIRTUAL_ENV=/opt/venvs/deepspeech-train-venv
@@ -62,9 +63,18 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip3 install deepspeech-gpu==$DS_PYTHON
 RUN pip3 install -r /opt/DeepSpeech/requirements.txt && \
     pip3 install pydub && \
-    pip3 uninstall -y tensorflow && pip3 install 'tensorflow-gpu==1.14.0' && \
+    pip3 uninstall -y tensorflow && \
+    pip3 install 'tensorflow-gpu==1.14.0' && \
     pip3 install jupyterlab
 RUN pip3 install $(python3 /opt/DeepSpeech/util/taskcluster.py --decoder)
+
+# Download the pb->pbmm converter
+RUN cd /opt/DeepSpeech && \
+    python util/taskcluster.py --source "tensorflow" \
+			       --branch "r1.14" \
+			       --artifact "convert_graphdef_memmapped_format" \
+			       --target native_client_bin && \
+    chmod u+x /opt/DeepSpeech/native_client_bin/convert_graphdef_memmapped_format
 
 # Env variable for DeepSpeech training failure
 # ENV TF_FORCE_GPU_ALLOW_GROWTH true
@@ -74,9 +84,3 @@ ENV PATH="$PATH_DOCKER_BACKUP"
 
 # Set Python IO encoding to utf-8
 ENV PYTHONIOENCODING="utf-8"
-
-# Set US-english UTF-8 as locale
-# RUN locale-gen en_US.UTF-8 && export LANG=en_US.UTF-8
-
-# Set access right for copied files
-# CMD chmod u+x /opt/inference.sh /opt/DeepSpeech/train_custom.sh
