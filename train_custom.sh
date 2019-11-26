@@ -7,9 +7,7 @@ datasets_dir="${shared_dir}/datasets/"
 
 echo "Logging to: ${log_fn}"
 
-if [ ! -d "../ds_outputs/export" ] || [ ! -d "../ds_outputs/checkpoints" ] || [ ! -d "../ds_outputs/summary" ] || [ ! -d "../ds_outputs/logs" ]; then
-	mkdir -p "../ds_outputs/export" "../ds_outputs/checkpoints" "../ds_outputs/summary" "../ds_outputs/logs"
-fi
+mkdir -p "../ds_outputs/export" "../ds_outputs/checkpoints" "../ds_outputs/summary" "../ds_outputs/logs"
 
 ######-PARAMS-######
 train_files="${datasets_dir}/cpm_cut/train.csv"
