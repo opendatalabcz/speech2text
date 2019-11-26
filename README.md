@@ -54,7 +54,7 @@ In the /opt directory, you should see:
 * *speech2text* directory, which is this repo and
 * *venvs*, where is the currently used Python virtual environmnet
 
-### Data preprocessing
+## Data preprocessing
 I recommend creating a "datasets" directory in the \opt\shared directory where you'll copy the CPM dataset - something along these lines:
 ```
 mkdir -p /opt/shared/datasets/cpm_dataset /opt/shared/models
@@ -89,4 +89,33 @@ Distribution:
 train: 0.6985178727114211
 dev:   0.2009299622202848
 test:  0.1005521650682941
+```
+## Language model creation
+Before we start training the model, we need to generate a language model (LM). We need a vocabulary (more like a corpus) -- that should be a file, where on each line is one complete sentence from the dataset environment.
+
+I've used [this](https://github.com/Dl2oWn/steno/blob/master/Priprava_dat.ipynb) jupyter notebook to do the data scraping for me. It scrapes the website of Czech Parliament, downloads all available compressed stenoprotocols from Czech Parliaments Meetings, processes them and creates vocabulary.txt file with the desired format (our corpus).
+
+After obtaining the corpus file, copy it to the shared (mounted) folder from the host machine. Now we can start generating necessary files. We'll start with *arpa* file:
+```
+cd /opt
+./kenlm/build/bin/lmplz --text shared/vocabulary.txt --arpa shared/words.arpa --o 5
+```
+
+where *--text* parameter expect path to the corpus file, *--arpa* the output filename and *--o* the order of the language model to estimate. The order should be a lower number for smaller corpuses and vice versa - more info [here](https://kheafield.com/code/kenlm/estimation/). Now to generation of LM binary:
+```
+./kenlm/build/bin/build_binary shared/words.arpa \
+                               shared/lm.binary
+```
+
+and finally generate trie:
+```
+./DeepSpeech/native_client_prebuilt/generate_trie shared/alphabet_cz.txt \
+                                                  shared/lm.binary \
+                                                  shared/trie
+```
+
+## Training your model
+With the dataset preprocessed and ready, let's try out training. There is already a script which, apart from executing the DeepSpeech training procedure, also logs DS outputs, saves training configuration, properly names exported model and converts it to mem-mappable format (much faster for inference). Let's swith to the DeepSpeech dir:
+```
+cd /opt/DeepSpeech
 ```
