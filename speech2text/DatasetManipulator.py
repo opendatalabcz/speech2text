@@ -160,23 +160,23 @@ class DatasetManipulator:
             filesize = os.path.getsize(wav_list[i])
             abs_path = os.path.abspath(wav_list[i])
 
-            d = random.randint(0, 3)
+            d = random.randint(0, 9)
 
-            if d <= 1:
+            if d <= 6:
                 csv_train.write('{},{},{}\n'.format(abs_path, filesize, transcript))
                 train_cnt += 1
-            elif d == 2:
-                csv_test.write('{},{},{}\n'.format(abs_path, filesize, transcript))
-                test_cnt += 1
-            else:
+            elif d <= 8:
                 csv_dev.write('{},{},{}\n'.format(abs_path, filesize, transcript))
                 dev_cnt += 1
+            else:
+                csv_test.write('{},{},{}\n'.format(abs_path, filesize, transcript))
+                test_cnt += 1
 
         for file in [csv_train, csv_test, csv_dev]:
             file.close()
         sample_sum = train_cnt + test_cnt + dev_cnt
         print("Excluded samples with empty transcript.")
-        print("{} samples out of {}\nDistribution:\ntrain: {}\ndev:  {}\ntest: {}"
+        print("{} samples out of {}\nDistribution:\ntrain: {}\ndev:   {}\ntest:  {}"
               .format(sample_sum, len(wav_list), train_cnt/sample_sum, dev_cnt/sample_sum, test_cnt/sample_sum))
 
     @staticmethod
