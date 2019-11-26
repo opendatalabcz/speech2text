@@ -107,7 +107,7 @@ where *--text* parameter expect path to the corpus file, *--arpa* the output fil
                                shared/lm.binary
 ```
 
-and finally generate trie:
+and finally generation of trie:
 ```
 ./DeepSpeech/native_client_prebuilt/generate_trie shared/alphabet_cz.txt \
                                                   shared/lm.binary \
@@ -115,7 +115,36 @@ and finally generate trie:
 ```
 
 ## Training your model
-With the dataset preprocessed and ready, let's try out training. There is already a script which, apart from executing the DeepSpeech training procedure, also logs DS outputs, saves training configuration, properly names exported model and converts it to mem-mappable format (much faster for inference). Let's swith to the DeepSpeech dir:
+With the dataset preprocessed and language model ready, let's try out training. There is already a script which, apart from executing the DeepSpeech training procedure, also logs DS outputs, saves training configuration, properly names exported model and converts it to memory-mappable format (much faster for inference). Let's switch to the DeepSpeech dir:
 ```
 cd /opt/DeepSpeech
 ```
+
+Here you can check out the *train_custom.sh* script. There is a section in the script which sets the nerual network (NN) hyperparameters - it is highlighted with hash comments. Default parameters are:
+* train_batch_size=24
+* dev_batch_size=48
+* test_batch_size=48
+* n_hidden=2048
+* learning_rate=0.0001
+* dropout_rate=0.2
+* epochs=25
+* early_stop="true"
+* lm_alpha=0.75
+* lm_beta=1.85
+
+Apart from optimization parameters, it's important to alter the batch_size parameters based on your graphic memory capacity. Too big batches will cause Out of Memory (OOM) errors, too small batches will cause low utilization of your GPU units and longer epochs. This setup is aprox. for 22 GB of GPU memory with the CPM dataset. To learn more about all the possible parameters and their meaning, execute following command:
+```
+./DeepSpeech.py --helpfull
+```
+
+Also, you should check the path parameters section and confirm it corresponds with your directory hierarchy. When you're ready, you can start the learning process:
+```
+./train_custom.sh &
+```
+
+Since all the ouputs are being redirected to a file, it's preferable if you execute the command in the background (as shown above). The log file name is printed on standard output and it is located in the current folder with *.log* extension and current date/time name. You can watch the progress using:
+```
+tail -f log_file
+```
+
+After the training is done, you should be able to find the exported model in */opt/shared/models* - it is named *WER_CER_loss.pbmm*, where WER is Word Error Rate, CER is Character Error Rate and loss is internal loss function used during training, which is hard to interpret outside the training context.
