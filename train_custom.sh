@@ -22,12 +22,12 @@ lm_binary_path="${shared_dir}/lm.binary"
 lm_trie_path="${shared_dir}/trie"
 ####################
 train_batch_size=24
-dev_batch_size=48
-test_batch_size=48
+dev_batch_size=44
+test_batch_size=44
 n_hidden=2048
 learning_rate=0.0001
 dropout_rate=0.2
-epochs=75
+epochs=25
 early_stop="true"
 lm_alpha=0.75
 lm_beta=1.85
@@ -64,8 +64,8 @@ test_loss=`grep "Test on" "${log_fn}" | cut -d':' -f4 | cut -d',' -f1 | tr -d ' 
 
 model_info_fn="${model_dir}${test_WER}_${test_CER}_${test_loss}"
 
-python ./native_client_bin/convert_graphdef_memmapped_format --in_graph="../ds_outputs/export/output_graph.pb" \
-							     --out_graph="${model_info_fn}.pbmm"
+./native_client_bin/convert_graphdef_memmapped_format --in_graph="../ds_outputs/export/output_graph.pb" \
+						      --out_graph="${model_info_fn}.pbmm" >> "${log_fn}" 2>&1
 
 if [ -f "${model_info_fn}.pbmm" ]; then
 	rm "../ds_outputs/export/output_graph.pb"
