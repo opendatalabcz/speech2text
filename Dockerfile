@@ -68,13 +68,16 @@ RUN pip3 install -r /opt/DeepSpeech/requirements.txt && \
     pip3 install jupyterlab
 RUN pip3 install $(python3 /opt/DeepSpeech/util/taskcluster.py --decoder)
 
-# Download the pb->pbmm converter
+# Download the pb->pbmm converter and trie generator
 RUN cd /opt/DeepSpeech && \
     python util/taskcluster.py --source "tensorflow" \
 			       --branch "r1.14" \
 			       --artifact "convert_graphdef_memmapped_format" \
 			       --target native_client_bin && \
     chmod u+x /opt/DeepSpeech/native_client_bin/convert_graphdef_memmapped_format
+
+RUN cd /opt/DeepSpeech && \
+    python util/taskcluster.py --target ./native_client_prebuilt
 
 # Env variable for DeepSpeech training failure
 # ENV TF_FORCE_GPU_ALLOW_GROWTH true
