@@ -72,5 +72,21 @@ So execute the Python program as follows (and modify the dataset path if it diff
 ```
 python speech2text/main.py shared/datasets/cpm_dataset
 ```
-if it runs correctly, it should first list all found audio/xml pairs, then list all the completed pair cuts and finally announce the train/dev/test file distribution for the DeepSpeech csv. It should be close to 70:20:10.
-
+if it runs correctly, it should first list all found audio/xml pairs, then list all the completed pair cuts and finally announce the train/dev/test file distribution for the DeepSpeech csv. Example:
+```
+Found:
+SOUND_110212_003546, SOUND_110325_010705, SOUND_110427_005836, SOUND_110428_005954, SOUND_110429_005820, SOUND_110504_005351, SOUND_110505_005813, SOUND_110506_005821, SOUND_110507_005803, SOUND_110511_005438, SOUND_110609_005958, SOUND_110611_010015, SOUND_110617_010946, SOUND_110618_010259, SOUND_110619_001010, SOUND_110714_010025, SOUND_110715_005912, SOUND_110831_005909
+Finished cutting file id 1.
+Finished cutting file id 2.
+Finished cutting file id 0.
+Finished cutting file id 7.
+...
+Finished cutting file id 17.
+Finished cutting file id 16.
+Excluded samples with empty transcript.
+51615 samples out of 60194
+Distribution:
+train: 0.6985178727114211
+dev:   0.2009299622202848
+test:  0.1005521650682941
+```
