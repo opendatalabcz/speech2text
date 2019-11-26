@@ -22,8 +22,8 @@ lm_binary_path="${shared_dir}/lm.binary"
 lm_trie_path="${shared_dir}/trie"
 ####################
 train_batch_size=24
-dev_batch_size=44
-test_batch_size=44
+dev_batch_size=48
+test_batch_size=48
 n_hidden=2048
 learning_rate=0.0001
 dropout_rate=0.2
