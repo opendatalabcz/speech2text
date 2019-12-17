@@ -101,7 +101,7 @@ cd /opt
 ./kenlm/build/bin/lmplz --text shared/vocabulary.txt --arpa shared/words.arpa --o 5
 ```
 
-where *--text* parameter expect path to the corpus file, *--arpa* the output filename and *--o* the order of the language model to estimate. The order should be a lower number for smaller corpuses and vice versa - more info [here](https://kheafield.com/code/kenlm/estimation/). Now to generation of LM binary:
+where *--text* parameter expects path to the corpus file, *--arpa* the output filename and *--o* the order of the language model to estimate. The order should be a lower number for small corpuses and vice versa - more info [here](https://kheafield.com/code/kenlm/estimation/). Now to generation of LM binary:
 ```
 ./kenlm/build/bin/build_binary shared/words.arpa \
                                shared/lm.binary
@@ -142,7 +142,7 @@ Also, you should check the path parameters section and confirm it corresponds wi
 ./train_custom.sh &
 ```
 
-Since all the ouputs are being redirected to a file, it's preferable if you execute the command in the background (as shown above). The log file name is printed on standard output and it is located in the current folder with *.log* extension and current date/time name. You can watch the progress using:
+Since all the ouputs are being redirected to a file, it's preferable that you execute the command in the background (as shown above). The log file name is printed on standard output and it is located in the current folder with *.log* extension and current date/time name. You can watch the progress using:
 ```
 tail -f log_file
 ```
