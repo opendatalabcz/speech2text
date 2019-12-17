@@ -15,7 +15,7 @@ build:
 	docker build -t "$(I_NAME)" -f ../Dockerfile "${BLD_CTX}"
 	rm ../Dockerfile
 run:
-	NV_GPU="$(GPU)" nvidia-docker run -it -p 8888:8888 -p 0.0.0.0:6006:6006 --name "$(C_NAME)" --memory="$(RAM_LIMIT)" --rm -v "$HOST_SHARED_DIR":/opt/shared "$(I_NAME)"
+	NV_GPU="$(GPU)" nvidia-docker run -it -p 8888:8888 -p 0.0.0.0:6006:6006 --name "$(C_NAME)" --memory="$(RAM_LIMIT)" --rm -v "${HOST_SHARED_DIR}":/opt/shared "$(I_NAME)"
 exec:
 	docker exec -it "$(C_NAME)" bash
 default_arguments:
