@@ -40,6 +40,5 @@ deepspeech --model "${shared_dir}/models/${best_wer_model}" \
            --lm "${shared_dir}/lm.binary" \
            --trie "${shared_dir}/trie" \
            --audio "${datasets_dir}/cpm_cut/${audio_id}.wav" \
-           --alphabet "${shared_dir}/alphabet_cz.txt" \
            2> /dev/null
 
