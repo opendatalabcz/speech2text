@@ -3,10 +3,9 @@ FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
 
 #DeepSpeech tags
 ARG DS_TAG_VER="0.6.0"
-ARG DS_TAG_ALP="12"
 
-ARG DS_CHECKOUT="v${DS_TAG_VER}-alpha.${DS_TAG_ALP}"
-ARG DS_PYTHON="${DS_TAG_VER}a${DS_TAG_ALP}"
+ARG DS_CHECKOUT="v${DS_TAG_VER}"
+ARG DS_PYTHON="${DS_TAG_VER}"
 
 # UBUNTU DEPENDENCIES
 RUN apt-get update && apt-get install -y \
