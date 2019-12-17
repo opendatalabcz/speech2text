@@ -69,13 +69,13 @@ model_info_fn="${model_dir}${test_WER}_${test_CER}_${test_loss}"
 
 if [ -f "${model_info_fn}.pbmm" ]; then
 	rm "../ds_outputs/export/output_graph.pb"
-fi
 
-echo "Batch sizes (tr/de/te):${train_batch_size}/${dev_batch_size}/${test_batch_size}" >> "${model_info_fn}.txt"
-echo "N-hidden:${n_hidden}" >> "${model_info_fn}.txt"
-echo "Learning rate:${learning_rate}" >> "${model_info_fn}.txt"
-echo "Dropout:${dropout_rate}" >> "${model_info_fn}.txt"
-echo "Epochs:${epochs}" >> "${model_info_fn}.txt"
-echo "Early stop:${early_stop}" >> "${model_info_fn}.txt"
-echo "lm_alpha:${lm_alpha}" >> "${model_info_fn}.txt"
-echo "lm_beta:${lm_beta}" >> "${model_info_fn}.txt"
+	echo "Batch sizes (tr/de/te):${train_batch_size}/${dev_batch_size}/${test_batch_size}" >> "${model_info_fn}.txt"
+	echo "N-hidden:${n_hidden}" >> "${model_info_fn}.txt"
+	echo "Learning rate:${learning_rate}" >> "${model_info_fn}.txt"
+	echo "Dropout:${dropout_rate}" >> "${model_info_fn}.txt"
+	echo "Epochs:${epochs}" >> "${model_info_fn}.txt"
+	echo "Early stop:${early_stop}" >> "${model_info_fn}.txt"
+	echo "lm_alpha:${lm_alpha}" >> "${model_info_fn}.txt"
+	echo "lm_beta:${lm_beta}" >> "${model_info_fn}.txt"
+fi
