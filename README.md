@@ -148,3 +148,6 @@ tail -f log_file
 ```
 
 After the training is done, you should be able to find the exported model in */opt/shared/models* - it is named *WER_CER_loss.pbmm*, where WER is Word Error Rate, CER is Character Error Rate and loss is internal loss function used during training, which is hard to interpret outside the training context.
+
+## Inference on the exported model
+Once you've successfuly exported a trained model, you're ready to run inference on it.
