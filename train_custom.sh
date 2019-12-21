@@ -20,6 +20,7 @@ summary_dir="../ds_outputs/summary"
 log_dir="../ds_outputs/logs"
 lm_binary_path="${shared_dir}/lm.binary"
 lm_trie_path="${shared_dir}/trie"
+load="init"
 ####################
 train_batch_size=24
 dev_batch_size=48
@@ -50,6 +51,7 @@ augmentation_speed_up_std=0.0
  --log_dir "$log_dir" \
  --lm_binary_path "$lm_binary_path" \
  --lm_trie_path "$lm_trie_path" \
+ --load "$load" \
  --train_batch_size "$train_batch_size" \
  --dev_batch_size "$dev_batch_size" \
  --test_batch_size "$test_batch_size" \
