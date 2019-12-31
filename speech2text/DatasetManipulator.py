@@ -39,7 +39,7 @@ class DatasetManipulator:
                 if '.trs' in file:
                     self.annotation_files.append(os.path.join(r, file))
 
-        if len(self.audio_files) == 0 or len(self.annotation_files) == 0:
+        if len(self.audio_files) == 0 and len(self.annotation_files) == 0:
             print("No viable files present in {}".format(dataset_folder))
             return
 
@@ -51,6 +51,29 @@ class DatasetManipulator:
                 print(self.audio_files[i].split(self.OS_SEP)[-1].split('.')[0])
             else:
                 print(self.audio_files[i].split(self.OS_SEP)[-1].split('.')[0] + ', ', end='')
+
+    def generate_speakers(self, pair_id):
+        pair = self.get_pair_by_id(pair_id)
+        counter = 0
+        file_id_path = os.path.join(self.cut_dataset_path, str(pair_id) + '_' + str(counter))
+        speaker_dict = {}
+        curr_speaker = ''
+
+        for elem in pair[1].iter():
+            if elem.tag == 'Speaker':
+                speaker_dict[elem.get('id')] = elem.get('name')
+            if elem.tag == 'Turn':
+                curr_speaker = speaker_dict[elem.get('speaker')]
+            if elem.tag == 'Sync':
+                spk_f = open(file_id_path + '.spk', 'w+', encoding=self.FILE_ENCODING)
+                spk_f.write(curr_speaker)
+                spk_f.close()
+                counter += 1
+                file_id_path = os.path.join(self.cut_dataset_path, str(pair_id) + '_' + str(counter))
+
+    def generate_all_speakers(self):
+        for i in range(0, len(self.annotation_files)):
+            self.generate_speakers(i)
 
     def cut_audio_pair(self, pair_id):
 
