@@ -68,8 +68,14 @@ class DatasetManipulator:
         file_id_path = os.path.join(self.cut_dataset_path, str(pair_id) + '_' + str(counter))
         first_file_entry = True
         pronounce_word = ''
+        speaker_dict = {}
+        curr_speaker = ''
 
         for elem in pair[1].iter():
+            if elem.tag == 'Speaker':
+                speaker_dict[elem.get('id')] = elem.get('name')
+            if elem.tag == 'Turn':
+                curr_speaker = speaker_dict[elem.get('speaker')]
             if elem.tag == 'Event' and elem.get('type') == 'pronounce' and elem.get('extent') == 'begin':
                 pronounce_word = elem.get('desc')
             if elem.tag == 'Sync':
@@ -80,6 +86,9 @@ class DatasetManipulator:
                 audio_segment = audio_segment.set_frame_rate(self.SAMPLING_RATE)
                 audio_segment.export(file_id_path + '.wav', format='wav')
                 open(file_id_path + '.txt', 'a+', encoding=self.FILE_ENCODING).close()
+                spk_f = open(file_id_path + '.spk', 'w+', encoding=self.FILE_ENCODING)
+                spk_f.write(curr_speaker)
+                spk_f.close()
                 counter += 1
                 file_id_path = os.path.join(self.cut_dataset_path, str(pair_id) + '_' + str(counter))
                 last_time = time_ms
