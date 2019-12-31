@@ -20,17 +20,23 @@ summary_dir="../ds_outputs/summary"
 log_dir="../ds_outputs/logs"
 lm_binary_path="${shared_dir}/lm.binary"
 lm_trie_path="${shared_dir}/trie"
+load="init"
 ####################
 train_batch_size=24
 dev_batch_size=48
 test_batch_size=48
 n_hidden=2048
 learning_rate=0.0001
-dropout_rate=0.2
+dropout_rate=0.25
 epochs=25
 early_stop="true"
 lm_alpha=0.75
 lm_beta=1.85
+use_allow_growth="true"
+automatic_mixed_precision="true"
+augmentation_freq_and_time_masking="true"
+augmentation_pitch_and_tempo_scaling="true"
+augmentation_speed_up_std=0.0
 ###################
 
 
@@ -45,6 +51,7 @@ lm_beta=1.85
  --log_dir "$log_dir" \
  --lm_binary_path "$lm_binary_path" \
  --lm_trie_path "$lm_trie_path" \
+ --load "$load" \
  --train_batch_size "$train_batch_size" \
  --dev_batch_size "$dev_batch_size" \
  --test_batch_size "$test_batch_size" \
@@ -55,8 +62,11 @@ lm_beta=1.85
  --early_stop "$early_stop" \
  --lm_alpha "$lm_alpha" \
  --lm_beta "$lm_beta" \
- --use_allow_growth \
- --automatic_mixed_precision > "${log_fn}" 2>&1
+ --use_allow_growth "$use_allow_growth" \
+ --automatic_mixed_precision "$automatic_mixed_precision" \
+ --augmentation_freq_and_time_masking "$augmentation_freq_and_time_masking" \
+ --augmentation_pitch_and_tempo_scaling "$augmentation_pitch_and_tempo_scaling" \
+ --augmentation_speed_up_std "$augmentation_speed_up_std" > "${log_fn}" 2>&1
 
 test_WER=`grep "Test on" "${log_fn}" | cut -d':' -f2 | cut -d',' -f1 | tr -d ' '`
 test_CER=`grep "Test on" "${log_fn}" | cut -d':' -f3 | cut -d',' -f1 | tr -d ' '`
@@ -69,13 +79,17 @@ model_info_fn="${model_dir}${test_WER}_${test_CER}_${test_loss}"
 
 if [ -f "${model_info_fn}.pbmm" ]; then
 	rm "../ds_outputs/export/output_graph.pb"
-fi
 
-echo "Batch sizes (tr/de/te):${train_batch_size}/${dev_batch_size}/${test_batch_size}" >> "${model_info_fn}.txt"
-echo "N-hidden:${n_hidden}" >> "${model_info_fn}.txt"
-echo "Learning rate:${learning_rate}" >> "${model_info_fn}.txt"
-echo "Dropout:${dropout_rate}" >> "${model_info_fn}.txt"
-echo "Epochs:${epochs}" >> "${model_info_fn}.txt"
-echo "Early stop:${early_stop}" >> "${model_info_fn}.txt"
-echo "lm_alpha:${lm_alpha}" >> "${model_info_fn}.txt"
-echo "lm_beta:${lm_beta}" >> "${model_info_fn}.txt"
+	echo "batch_sizes(tr/de/te):${train_batch_size}/${dev_batch_size}/${test_batch_size}" >> "${model_info_fn}.txt"
+	echo "n_hidden:${n_hidden}" >> "${model_info_fn}.txt"
+	echo "learning rate:${learning_rate}" >> "${model_info_fn}.txt"
+	echo "dropout:${dropout_rate}" >> "${model_info_fn}.txt"
+	echo "epochs:${epochs}" >> "${model_info_fn}.txt"
+	echo "early_stop:${early_stop}" >> "${model_info_fn}.txt"
+	echo "lm_alpha:${lm_alpha}" >> "${model_info_fn}.txt"
+	echo "lm_beta:${lm_beta}" >> "${model_info_fn}.txt"
+	echo "automatic_mixed_precision:${automatic_mixed_precision}" >> "${model_info_fn}.txt"
+	echo "augmentation_freq_and_time_masking:${augmentation_freq_and_time_masking}" >> "${model_info_fn}.txt"
+	echo "augmentation_pitch_and_tempo_scaling:${augmentation_pitch_and_tempo_scaling}" >> "${model_info_fn}.txt"
+	echo "augmentation_speed_up_std:${augmentation_speed_up_std}" >> "${model_info_fn}.txt"
+fi
