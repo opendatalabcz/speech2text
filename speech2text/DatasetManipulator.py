@@ -53,17 +53,20 @@ class DatasetManipulator:
                 print(self.audio_files[i].split(self.OS_SEP)[-1].split('.')[0] + ', ', end='')
 
     def generate_speakers(self, pair_id):
-        pair = self.get_pair_by_id(pair_id)
+        ann = ElemT.parse(self.annotation_files[pair_id]).getroot()
         counter = 0
         file_id_path = os.path.join(self.cut_dataset_path, str(pair_id) + '_' + str(counter))
         speaker_dict = {}
         curr_speaker = ''
 
-        for elem in pair[1].iter():
+        for elem in ann.iter():
             if elem.tag == 'Speaker':
                 speaker_dict[elem.get('id')] = elem.get('name')
             if elem.tag == 'Turn':
-                curr_speaker = speaker_dict[elem.get('speaker')]
+                if elem.get('speaker').strip():
+                        curr_speaker = speaker_dict[elem.get('speaker').split()[0]]
+                else:
+                        curr_speaker = ''
             if elem.tag == 'Sync':
                 spk_f = open(file_id_path + '.spk', 'w+', encoding=self.FILE_ENCODING)
                 spk_f.write(curr_speaker)
