@@ -9,24 +9,25 @@ ARG DS_PYTHON="${DS_TAG_VER}"
 
 # UBUNTU DEPENDENCIES
 RUN apt-get update && apt-get install -y \
-			wget \
-			git \
-			git-lfs \
-			nano \
-            vim \
-            curl \
-            python3 \
-            python3-pip \
-			sox \
-			libsox-fmt-mp3 \
-			dos2unix \
-			virtualenv \
-            build-essential \
-			cmake \
-			libboost-all-dev \
-			liblzma-dev \
-			libbz2-dev \
-            software-properties-common
+	wget \
+	git \
+	git-lfs \
+	nano \
+	vim \
+	curl \
+	python3 \
+	python3-pip \
+	python3-dev \
+	sox \
+	libsox-fmt-mp3 \
+	dos2unix \
+	virtualenv \
+	build-essential \
+	cmake \
+	libboost-all-dev \
+	liblzma-dev \
+	libbz2-dev \
+	software-properties-common
 RUN git lfs install
 RUN apt-get clean
 
