@@ -1,4 +1,4 @@
-GPU = "0,1"  # split by ,
+GPU = ""  # split by ,
 C_NAME = "speech2text_cont"
 RAM_LIMIT = "24g"
 I_NAME = "speech2text_img"
@@ -14,6 +14,8 @@ build:
 	cp ./Dockerfile ../Dockerfile
 	docker build -t "$(I_NAME)" -f ../Dockerfile "${BLD_CTX}"
 	rm ../Dockerfile
+run-cpu:
+	docker run -it -p 8888:8888 -p 0.0.0.0:6006:6006 --name "$(C_NAME)_CPU" --memory="$(RAM_LIMIT)" --rm -v "${HOST_SHARED_DIR}":/opt/shared "$(I_NAME)"
 run:
 	NV_GPU="$(GPU)" nvidia-docker run -it -p 8888:8888 -p 0.0.0.0:6006:6006 --name "$(C_NAME)" --memory="$(RAM_LIMIT)" --rm -v "${HOST_SHARED_DIR}":/opt/shared "$(I_NAME)"
 exec:
