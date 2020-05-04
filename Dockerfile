@@ -60,15 +60,17 @@ RUN virtualenv -p python3 "$VIRTUAL_ENV"
 ENV PATH_DOCKER_BACKUP="$PATH"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Python dependencies, pydub package and Jupyter
+# Python dependencies
 RUN pip3 install deepspeech-gpu==$DS_PYTHON
 RUN pip3 install -r /opt/DeepSpeech/requirements.txt && \
     pip3 install pydub && \
     pip3 uninstall -y tensorflow && \
     pip3 install 'tensorflow-gpu==1.14.0' && \
-    pip3 install jupyterlab
+    pip3 install jupyterlab && \
+    pip3 install inaSpeechSegmenter && \
+    pip3 install lxml && \
+    pip3 install cssselect
 RUN pip3 install $(python3 /opt/DeepSpeech/util/taskcluster.py --decoder)
-RUN pip3 install inaSpeechSegmenter
 
 # Download the pb->pbmm converter and trie generator
 RUN cd /opt/DeepSpeech && \
