@@ -1,8 +1,9 @@
-GPU = ""  # split by ,
+GPU = "0,1"  # split by ,
 C_NAME = "speech2text_cont"
-RAM_LIMIT = "24g"
+RAM_LIMIT = "32g"
 I_NAME = "speech2text_img"
 HOST_SHARED_DIR = "/home/rwerner/SpeechProcessing/shared"
+HOST_SHARED_DIR_2 = "/data/rwerner"
 
 BLD_CTX = ".."
 
@@ -15,9 +16,9 @@ build:
 	docker build -t "$(I_NAME)" -f ../Dockerfile "${BLD_CTX}"
 	rm ../Dockerfile
 run-cpu:
-	docker run -it -p 8888:8888 -p 0.0.0.0:6006:6006 --name "$(C_NAME)_CPU" --memory="$(RAM_LIMIT)" --rm -v "${HOST_SHARED_DIR}":/opt/shared "$(I_NAME)"
+	docker run -it -p 8888:8888 -p 0.0.0.0:6006:6006 --name "$(C_NAME)_CPU" --memory="$(RAM_LIMIT)" --rm -v "${HOST_SHARED_DIR}":/opt/shared -v "${HOST_SHARED_DIR_2}":/opt/shared_data "$(I_NAME)"
 run:
-	NV_GPU="$(GPU)" nvidia-docker run -it -p 8888:8888 -p 0.0.0.0:6006:6006 --name "$(C_NAME)" --memory="$(RAM_LIMIT)" --rm -v "${HOST_SHARED_DIR}":/opt/shared "$(I_NAME)"
+	NV_GPU="$(GPU)" nvidia-docker run -it -p 8888:8888 -p 0.0.0.0:6006:6006 --name "$(C_NAME)" --memory="$(RAM_LIMIT)" --rm -v "${HOST_SHARED_DIR}":/opt/shared -v "${HOST_SHARED_DIR_2}":/opt/shared_data "$(I_NAME)"
 exec:
 	docker exec -it "$(C_NAME)" bash
 default_arguments:

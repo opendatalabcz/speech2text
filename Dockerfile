@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y \
 	libboost-all-dev \
 	liblzma-dev \
 	libbz2-dev \
+	ffmpeg \
 	software-properties-common
 RUN git lfs install
 RUN apt-get clean
@@ -59,7 +60,7 @@ RUN virtualenv -p python3 "$VIRTUAL_ENV"
 ENV PATH_DOCKER_BACKUP="$PATH"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# DeepSpeech Python dependencies, pydub package and Jupyter
+# Python dependencies, pydub package and Jupyter
 RUN pip3 install deepspeech-gpu==$DS_PYTHON
 RUN pip3 install -r /opt/DeepSpeech/requirements.txt && \
     pip3 install pydub && \
@@ -67,6 +68,7 @@ RUN pip3 install -r /opt/DeepSpeech/requirements.txt && \
     pip3 install 'tensorflow-gpu==1.14.0' && \
     pip3 install jupyterlab
 RUN pip3 install $(python3 /opt/DeepSpeech/util/taskcluster.py --decoder)
+RUN pip3 install inaSpeechSegmenter
 
 # Download the pb->pbmm converter and trie generator
 RUN cd /opt/DeepSpeech && \
