@@ -75,7 +75,7 @@ RUN pip3 install $(python3 /opt/DeepSpeech/util/taskcluster.py --decoder)
 # Download the pb->pbmm converter and trie generator
 RUN cd /opt/DeepSpeech && \
     python util/taskcluster.py --source "tensorflow" \
-			       --branch "r1.14" \
+			       --branch "r1.15" \
 			       --artifact "convert_graphdef_memmapped_format" \
 			       --target native_client_bin && \
     chmod u+x /opt/DeepSpeech/native_client_bin/convert_graphdef_memmapped_format
