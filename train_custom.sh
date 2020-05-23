@@ -22,9 +22,12 @@ lm_binary_path="${shared_dir}/lm.binary"
 lm_trie_path="${shared_dir}/trie"
 load="init"
 ####################
-train_batch_size=24
-dev_batch_size=48
-test_batch_size=48
+train_batch_size=3
+dev_batch_size=3
+test_batch_size=3
+limit_train=0
+limit_dev=0
+limit_test=0
 n_hidden=2048
 learning_rate=0.0001
 dropout_rate=0.25
@@ -44,6 +47,9 @@ augmentation_speed_up_std=0.0
  --train_files "$train_files" \
  --test_files "$test_files" \
  --dev_files "$dev_files" \
+ --limit_train "$limit_train" \
+ --limit_dev "$limit_dev" \
+ --limit_test "$limit_test" \
  --alphabet_config_path "$alphabet_config_path" \
  --export_dir "$export_dir" \
  --checkpoint_dir "$checkpoint_dir" \
@@ -74,13 +80,16 @@ test_loss=`grep "Test on" "${log_fn}" | cut -d':' -f4 | cut -d',' -f1 | tr -d ' 
 
 model_info_fn="${model_dir}${test_WER}_${test_CER}_${test_loss}"
 
-./native_client_bin/convert_graphdef_memmapped_format --in_graph="../ds_outputs/export/output_graph.pb" \
-						      --out_graph="${model_info_fn}.pbmm" >> "${log_fn}" 2>&1
+if [ -f "../ds_outputs/export/output_graph.pb" ]; then
+	./native_client_bin/convert_graphdef_memmapped_format --in_graph="../ds_outputs/export/output_graph.pb" \
+							      --out_graph="${model_info_fn}.pbmm" >> "${log_fn}" 2>&1
+fi
 
 if [ -f "${model_info_fn}.pbmm" ]; then
 	rm "../ds_outputs/export/output_graph.pb"
 
 	echo "batch_sizes(tr/de/te):${train_batch_size}/${dev_batch_size}/${test_batch_size}" >> "${model_info_fn}.txt"
+	echo "dataset_limit(tr/de/te):${limit_train}/${limit_dev}/${limit_test}" >> "${model_info_fn}.txt"
 	echo "n_hidden:${n_hidden}" >> "${model_info_fn}.txt"
 	echo "learning rate:${learning_rate}" >> "${model_info_fn}.txt"
 	echo "dropout:${dropout_rate}" >> "${model_info_fn}.txt"
