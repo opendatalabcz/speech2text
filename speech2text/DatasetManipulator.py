@@ -158,7 +158,7 @@ class DatasetManipulator:
         csv_file.close()
 
     @staticmethod
-    def csv_generate_deepspeech(folder, reduce_data=1.0):
+    def csv_generate_deepspeech(folder, reduce_data=1.0, csv_name_extension=''):
         if not os.path.exists(folder):
             print('Folder doesn\'t exist.')
             return
@@ -168,9 +168,9 @@ class DatasetManipulator:
                   "between 0 (exclusive) and 1 (inclusive - default). Returning.")
             return
 
-        csv_train = open(os.path.join(folder, "train.csv"), 'w+', encoding=DatasetManipulator.FILE_ENCODING)
-        csv_test = open(os.path.join(folder, "test.csv"), 'w+', encoding=DatasetManipulator.FILE_ENCODING)
-        csv_dev = open(os.path.join(folder, "dev.csv"), 'w+', encoding=DatasetManipulator.FILE_ENCODING)
+        csv_train = open(os.path.join(folder, "train" + csv_name_extension + ".csv"), 'w+', encoding=DatasetManipulator.FILE_ENCODING)
+        csv_test = open(os.path.join(folder, "test" + csv_name_extension + ".csv"), 'w+', encoding=DatasetManipulator.FILE_ENCODING)
+        csv_dev = open(os.path.join(folder, "dev" + csv_name_extension + ".csv"), 'w+', encoding=DatasetManipulator.FILE_ENCODING)
 
         for file in [csv_train, csv_test, csv_dev]:
             file.write('wav_filename,wav_filesize,transcript\n')
