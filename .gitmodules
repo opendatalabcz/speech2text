@@ -1,0 +1,3 @@
+[submodule "notebooks/steno"]
+	path = notebooks/steno
+	url = https://github.com/Dl2oWn/steno
