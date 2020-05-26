@@ -1,7 +1,7 @@
 printf -v curr_date '%(%Y%m%d-%H%M%S)T' -1
 log_fn="${curr_date}.log"
 
-model_dir="../shared/models/"
+model_dir="/opt/shared/models/"
 shared_dir="/opt/shared/"
 datasets_dir="${shared_dir}/datasets/"
 
