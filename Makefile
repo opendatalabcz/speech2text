@@ -1,3 +1,4 @@
+
 GPU = "0,1"  # split by ,
 C_NAME = "speech2text_cont"
 RAM_LIMIT = "32g"
@@ -20,6 +21,10 @@ run-cpu:
 run:
 	NV_GPU="$(GPU)" nvidia-docker run -it -p 8888:8888 -p 0.0.0.0:6006:6006 --name "$(C_NAME)" --memory="$(RAM_LIMIT)" -v "${HOST_SHARED_DIR}":/opt/shared -v "${HOST_SHARED_DIR_2}":/opt/shared_data "$(I_NAME)"
 exec:
+	docker start "${C_NAME}"
 	docker exec -it "$(C_NAME)" bash
+attach:
+	docker start "${C_NAME}"
+	docker attach "${C_NAME}"
 default_arguments:
 	echo "GPU: $(GPU), IMAGE NAME: $(I_NAME) CONTAINER NAME: $(C_NAME), HOST PORT: $(HOST_PORT), LIMIT RAM TO: $(RAM_LIMIT)"
