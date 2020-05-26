@@ -5,19 +5,21 @@ model_dir="/opt/shared/models/"
 shared_dir="/opt/shared/"
 datasets_dir="${shared_dir}/datasets/"
 
+ds_outputs_dir="../ds_outputs/"
+
 echo "Logging to: ${log_fn}"
 
-mkdir -p "../ds_outputs/export" "../ds_outputs/checkpoints" "../ds_outputs/summary" "../ds_outputs/logs"
+mkdir -p "${ds_outputs_dir}export" "${ds_outputs_dir}checkpoints" "${ds_outputs_dir}summary" "${ds_outputs_dir}logs"
 
 ######-PARAMS-######
 train_files="${datasets_dir}/cpm_cut/train.csv"
 test_files="${datasets_dir}/cpm_cut/test.csv"
 dev_files="${datasets_dir}/cpm_cut/dev.csv"
 alphabet_config_path="${shared_dir}/alphabet_cz.txt"
-export_dir="../ds_outputs/export"
-checkpoint_dir="../ds_outputs/checkpoints"
-summary_dir="../ds_outputs/summary"
-log_dir="../ds_outputs/logs"
+export_dir="${ds_outputs_dir}export"
+checkpoint_dir="${ds_outputs_dir}checkpoints"
+summary_dir="${ds_outputs_dir}summary"
+log_dir="${ds_outputs_dir}logs"
 lm_binary_path="${shared_dir}/lm.binary"
 lm_trie_path="${shared_dir}/trie"
 load="init"
@@ -80,13 +82,13 @@ test_loss=`grep "Test on" "${log_fn}" | cut -d':' -f4 | cut -d',' -f1 | tr -d ' 
 
 model_info_fn="${model_dir}${test_WER}_${test_CER}_${test_loss}"
 
-if [ -f "../ds_outputs/export/output_graph.pb" ]; then
-	./native_client_bin/convert_graphdef_memmapped_format --in_graph="../ds_outputs/export/output_graph.pb" \
+if [ -f "${ds_outputs_dir}export/output_graph.pb" ]; then
+	./native_client_bin/convert_graphdef_memmapped_format --in_graph="${ds_outputs_dir}export/output_graph.pb" \
 							      --out_graph="${model_info_fn}.pbmm" >> "${log_fn}" 2>&1
 fi
 
 if [ -f "${model_info_fn}.pbmm" ]; then
-	rm "../ds_outputs/export/output_graph.pb"
+	rm "${ds_outputs_dir}export/output_graph.pb"
 
 	echo "batch_sizes(tr/de/te):${train_batch_size}/${dev_batch_size}/${test_batch_size}" >> "${model_info_fn}.txt"
 	echo "dataset_limit(tr/de/te):${limit_train}/${limit_dev}/${limit_test}" >> "${model_info_fn}.txt"
