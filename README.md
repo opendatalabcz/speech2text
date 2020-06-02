@@ -11,12 +11,12 @@ Start by cloning this repo:
 git clone https://github.com/opendatalabcz/speech2text.git
 ```
 
-Now, it is necessary to also clone the DeepSpeech repo, since cloning it for each image build is rather impossible (aprox. 1.8 GB). That requires the git-lfs extension for git -- [here](https://git-lfs.github.com/). Clone it:
+Now, it is necessary to also clone the DeepSpeech repo, since cloning it for each image build is rather impossible (aprox. 1.5 GB). That requires the git-lfs extension for git -- [here](https://git-lfs.github.com/). Clone it:
 ```
 git clone https://github.com/mozilla/DeepSpeech.git
 ```
 
-Now we have both repos next to each other. Now you should be ready to build a docker image. Let's switch to speech2text directory and use make to build the image (if you wish to change the image/container names, head to the Makefile and look for "I_NAME"/"C_NAME" parameters):
+Now, we've got both repos next to each other. Next, you can build the docker image. Let's switch to speech2text directory and use make to build the image (if you wish to change the image/container names or mounted directories, head to the Makefile and look for "I_NAME"/"C_NAME" or "HOST_SHARED_DIR" parameters):
 ```
 cd speech2text
 make build
@@ -27,11 +27,9 @@ The image should contain everything necessary to train the model, export it and 
 * GPU units to use ("GPU" parameter),
 * Mounted host folder ("HOST_SHARED_DIR" parameter) - more info below\*
 
-\*Choose an existing folder from the host machine to be mounted into the container. That's where you'll keep your datasets, exported models, etc. On the other hand, be careful what you put there since **you'll have to set high (777) rights for the folder and all it's contents** from the host machine for the container to be able to manage files in the folder. You can find the shared directory at /opt/shared in the container afterwards.
+\*Choose an existing folder from the host machine to be mounted into the container. That's where you'll keep your datasets, exported models, etc. On the other hand, be careful what you put there since **you'll have to set high (777) rights for the folder and all it's contents** from the host machine for the container to be able to manage files in the folder. You can find the shared directory at /opt/shared (default) in the container afterwards.
 
 There are also two ports tunneled to the host machine from the container for Jupyter (port 8888) and Tensorboard (port 6006). If you're working on a remote server, you'll also need to forward these two ports via SSH/PuTTY (or whatever else you like to use).
-
-The run command is set to remove the container as soon as you exit it (--rm option), so feel free to remove this option from the Makefile if you feel like keeping the container after each session.
 
 Now you're ready to run the container:
 ```
@@ -93,7 +91,7 @@ test:  0.1005521650682941
 ## Language model creation
 Before we start training the model, we need to generate a language model (LM). We need a vocabulary (more like a corpus) -- that should be a file, where on each line is one complete sentence from the dataset environment.
 
-I've used [this](https://github.com/Dl2oWn/steno/blob/master/Priprava_dat.ipynb) jupyter notebook to do the data scraping for me. It scrapes the website of Czech Parliament, downloads all available compressed stenoprotocols from Czech Parliaments Meetings, processes them and creates vocabulary.txt file with the desired format (our corpus).
+I've used [this](./notebooks/steno/cpm_lm_crawler.ipynb) jupyter notebook to do the data scraping for me. It scrapes the website of Czech Parliament, downloads all available compressed stenoprotocols from Czech Parliaments Meetings, processes them and creates vocabulary.txt file with the desired format (our corpus).
 
 After obtaining the corpus file, copy it to the shared (mounted) folder from the host machine. Now we can start generating necessary files. We'll start with *arpa* file:
 ```
@@ -132,7 +130,7 @@ Here you can check out the *train_custom.sh* script. There is a section in the s
 * lm_alpha=0.75
 * lm_beta=1.85
 
-Apart from optimization parameters, it's important to alter the batch_size parameters based on your graphic memory capacity. Too big batches will cause Out of Memory (OOM) errors, too small batches will cause low utilization of your GPU units and longer epochs. This setup is aprox. for 22 GB of GPU memory with the CPM dataset. To learn more about all the possible parameters and their meaning, execute following command:
+Apart from optimization parameters, it's important to alter the batch_size parameters based on your graphic memory capacity. Too large batches will cause Out of Memory (OOM) errors, too small batches will cause low utilization of your GPU units and longer epochs. This setup is aprox. for 22 GB of GPU memory with the CPM dataset. To learn more about all the possible parameters and their meaning, execute following command:
 ```
 ./DeepSpeech.py --helpfull
 ```
@@ -150,4 +148,11 @@ tail -f log_file
 After the training is done, you should be able to find the exported model in */opt/shared/models* - it is named *WER_CER_loss.pbmm*, where WER is Word Error Rate, CER is Character Error Rate and loss is internal loss function used during training, which is hard to interpret outside the training context.
 
 ## Inference on the exported model
-Once you've successfuly exported a trained model, you're ready to run inference on it.
+Once you've successfuly exported a trained model, you're ready to run inference on it. There is a [script](./inference.sh) which runs either a random inference over specified number of recording from the CPM dataset or you can specify one specific file ID. It is executed as:
+```
+./inference.sh -r [NUM]
+```
+or
+```
+./inference x_xxxx
+```
