@@ -124,7 +124,7 @@ Here you can check out the *train_custom.sh* script. There is a section in the s
 * test_batch_size=48
 * n_hidden=2048
 * learning_rate=0.0001
-* dropout_rate=0.2
+* dropout_rate=0.25
 * epochs=25
 * early_stop="true"
 * lm_alpha=0.75
