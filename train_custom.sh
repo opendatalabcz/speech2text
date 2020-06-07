@@ -24,9 +24,9 @@ lm_binary_path="${shared_dir}/lm.binary"
 lm_trie_path="${shared_dir}/trie"
 load="init"
 ####################
-train_batch_size=3
-dev_batch_size=3
-test_batch_size=3
+train_batch_size=24
+dev_batch_size=48
+test_batch_size=48
 limit_train=0
 limit_dev=0
 limit_test=0
