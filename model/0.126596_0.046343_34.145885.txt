@@ -1,0 +1,8 @@
+Batch sizes (tr/de/te):24/48/48
+N-hidden:2048
+Learning rate:0.0001
+Dropout:0.25
+Epochs:25
+Early stop:true
+lm_alpha:0.75
+lm_beta:1.85
